@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Photos App</title></head>
+  <title>Smart Photos App</title>
+</head>
 <body>
     <header>
         <h1>Smart Photos App</h1>
@@ -14,11 +15,16 @@
           </ul>
         </nav>
       </header>
-  <h2>Smart search</h2>
-  <form action="/do-search" method="get">
-    <label for="searchText">Search Text:</label>
-    <input type="text" name="searchText" required>
-    <button type="submit">Search</button>
-  </form>
+  <h2>Results</h2>
+  <% if (imageList.length > 0) { %>
+    <ul>
+      <% imageList.forEach((image) => { %>
+        <li><img src="<%= image %>" alt="Image"></li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p>No images uploaded yet.</p>
+  <% } %>
+  <br>
 </body>
 </html>

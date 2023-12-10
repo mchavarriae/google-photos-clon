@@ -1,17 +1,24 @@
 const express = require('express');
 const Multer = require('multer');
 const { Storage } = require('@google-cloud/storage');
+const Firestore = require('@google-cloud/firestore');
+
 
 const app = express();
 const PORT = process.env.PORT || 3030;
+app.set('view engine', 'ejs');
 
+
+const db = new Firestore({
+  projectId: 'pragmatic-cache-403800',
+  timestampsInSnapshots: true
+});
 // Configure Google Cloud Storage
 const storage = new Storage({
-  projectId: 'your-project-id',
-  keyFilename: 'path/to/your/service/account/keyfile.json',
+  projectId: 'pragmatic-cache-403800'
 });
 
-const bucketName = 'your-bucket-name';
+const bucketName = 'mce-ulacit-11';
 const bucket = storage.bucket(bucketName);
 
 // Configure Multer for file uploads
@@ -30,6 +37,20 @@ app.get('/', (req, res) => {
 app.get('/search', (req, res) => {
     res.sendFile(__dirname + '/search.html');
   });
+
+  app.get('/do-search', async (req,res)=>{
+    const searchText = req.query.searchText;
+    const cityRef = db.collection('tags').doc(searchText);
+    const doc = await cityRef.get();
+    let imageList = [];
+    if (!doc.exists) {
+      console.log('No such document!');
+      res.status(404);
+     } else {
+      imageList = doc.data().photo_urls;
+    }
+    res.render('imageList', { imageList });
+});
   
 
 // Handle file upload
@@ -46,7 +67,8 @@ app.post('/upload', multer.single('file'), async (req, res) => {
 
     blobStream.on('finish', () => {
       const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-      res.status(200).send(`File uploaded successfully. Public URL: ${publicUrl}`);
+      // res.status(200).send(`Archivo subido, satisfactoriamente`);
+      res.redirect('/');
     });
 
     blobStream.end(file.buffer);
